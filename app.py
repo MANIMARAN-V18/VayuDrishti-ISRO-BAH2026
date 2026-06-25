@@ -42,7 +42,7 @@ st.markdown("""
 @st.cache_data
 def load_data():
     df = pd.read_csv(
-        "/content/drive/MyDrive/VayuDrishti/master_dataset.csv"
+        "https://raw.githubusercontent.com/MANIMARAN-V18/VayuDrishti-ISRO-BAH2026/main/data/master_dataset.csv"
     )
     return df
 

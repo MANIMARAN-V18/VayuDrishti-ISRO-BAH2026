@@ -70,7 +70,8 @@ page = st.sidebar.selectbox(
         "🗺️ AQI Map",
         "🔥 HCHO Hotspots",
         "📊 Model Performance",
-        "🏙️ City Analysis"
+        "🏙️ City Analysis",
+        "🔮 AQI Forecast"
     ]
 )
 

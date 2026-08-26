@@ -1,0 +1,70 @@
+# ================================================
+# VayuDrishti .gitignore
+# ISRO BAH 2026 | Team ASTROTECH
+# ================================================
+
+# Credentials and Secrets
+.env
+.env.local
+secrets.json
+credentials.json
+token.json
+*_token.json
+service_account.json
+
+# Google Earth Engine
+.config/earthengine/
+earthengine_credentials
+
+# Ngrok
+ngrok.yml
+ngrok_token.txt
+api_keys.txt
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Large satellite files
+*.nc
+*.nc4
+*.hdf
+*.hdf5
+*.tif
+*.tiff
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs and temp
+*.log
+*.tmp
+logs/
+temp/
+tmp/
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Colab paths
+/content/drive/

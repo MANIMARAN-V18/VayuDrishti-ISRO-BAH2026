@@ -630,11 +630,14 @@ elif page == "🔮 AQI Forecast":
  
     @st.cache_data
     def load_daily():
-        return pd.read_csv(
+        df = pd.read_csv(
             "https://raw.githubusercontent.com/MANIMARAN-V18/"
             "VayuDrishti-ISRO-BAH2026/main/data/daily_master.csv",
-            parse_dates=["Date"]
+            sep=None, engine="python"
         )
+        df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+        df = df.dropna(subset=["Date", "AQI_avg"])
+        return df
  
     daily_df = load_daily()
  

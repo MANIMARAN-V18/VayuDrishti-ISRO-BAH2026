@@ -67,5 +67,6 @@ tmp/
 .streamlit/secrets.toml
 
 /lstm_model.pth
+/lstm_model_15city.pth
 # Colab paths
 /content/drive/

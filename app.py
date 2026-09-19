@@ -5,13 +5,13 @@ import plotly.express as px
 import plotly.graph_objects as go
 import folium
 from streamlit_folium import st_folium
- 
+
 import torch
 import torch.nn as nn
 from sklearn.preprocessing import StandardScaler
 import warnings
 warnings.filterwarnings("ignore")
- 
+
 # ── Page Config ──
 st.set_page_config(
     page_title="VayuDrishti — Air Vision",
@@ -19,7 +19,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
- 
+
 # ── Custom CSS ──
 st.markdown("""
 <style>
@@ -40,7 +40,7 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
- 
+
 # ── Load Data ──
 @st.cache_data
 def load_data():
@@ -48,9 +48,9 @@ def load_data():
         "https://raw.githubusercontent.com/MANIMARAN-V18/VayuDrishti-ISRO-BAH2026/main/data/master_dataset.csv"
     )
     return df
- 
+
 df = load_data()
- 
+
 # ── Sidebar ──
 st.sidebar.image(
     "https://upload.wikimedia.org/wikipedia/commons/"
@@ -61,7 +61,7 @@ st.sidebar.image(
 st.sidebar.title("VayuDrishti")
 st.sidebar.markdown("*Air Vision for Every Indian*")
 st.sidebar.markdown("---")
- 
+
 page = st.sidebar.selectbox(
     "Navigate",
     [
@@ -73,14 +73,14 @@ page = st.sidebar.selectbox(
         "🔮 AQI Forecast"
     ]
 )
- 
+
 st.sidebar.markdown("---")
 st.sidebar.markdown("**Project Info**")
 st.sidebar.markdown("🛰️ ISRO BAH 2026")
 st.sidebar.markdown("📡 Challenge 03")
 st.sidebar.markdown("👥 Team VayuDrishti")
 st.sidebar.markdown("🎓 Puducherry, India")
- 
+
 # ════════════════════════════════
 # PAGE 1 — HOME
 # ════════════════════════════════
@@ -90,10 +90,10 @@ if page == "🏠 Home":
         "### *Air Vision for Every Indian*"
     )
     st.markdown("---")
- 
+
     # Key metrics
     col1, col2, col3, col4 = st.columns(4)
- 
+
     with col1:
         st.metric(
             label="🏙️ Cities Covered",
@@ -118,42 +118,42 @@ if page == "🏠 Home":
             value="1",
             delta="Danger zone detected"
         )
- 
+
     st.markdown("---")
- 
+
     # Project description
     col1, col2 = st.columns(2)
- 
+
     with col1:
         st.markdown("### 🎯 What is VayuDrishti?")
         st.markdown("""
         VayuDrishti is India\'s first intelligent
         Air Quality prediction system that:
- 
+
         - 🛰️ Uses **ISRO INSAT-3D** + **Sentinel-5P** satellite data
         - 🧠 Applies **CNN-LSTM deep learning** model
         - 🗺️ Predicts **AQI at 3km resolution** across India
         - 🔥 Detects **HCHO hotspots** from biomass burning
         - ⚕️ Provides **Health Risk Score** per district
         """)
- 
+
     with col2:
         st.markdown("### 🚨 The Problem We Solve")
         st.markdown("""
         India faces a critical air quality gap:
- 
+
         - 👥 **1.4 Billion** people in India
         - 📡 Only **~300** CPCB air sensors exist
         - ❌ **99.9%** of India has NO local AQI data
         - 🏭 HCHO from factories causes cancer
         - 🌾 Biomass burning spikes pollution seasonally
- 
+
         **VayuDrishti fills this gap using satellites!**
         """)
- 
+
     st.markdown("---")
     st.markdown("### 📊 Data Overview")
- 
+
     col1, col2, col3 = st.columns(3)
     with col1:
         st.dataframe(
@@ -186,7 +186,7 @@ if page == "🏠 Home":
         st.warning("🟡 Kolkata: Highest HCHO (319)")
         st.success("🟢 Puducherry: Cleanest city")
         st.info("📅 April: Worst HCHO month")
- 
+
 # ════════════════════════════════
 # PAGE 2 — AQI MAP
 # ════════════════════════════════
@@ -197,7 +197,7 @@ elif page == "🗺️ AQI Map":
         "across Indian cities"
     )
     st.markdown("---")
- 
+
     # City coordinates
     city_coords = {
         "Delhi"     : [28.6139, 77.2090],
@@ -211,7 +211,7 @@ elif page == "🗺️ AQI Map":
         "Patna"     : [25.5941, 85.1376],
         "Ahmedabad" : [23.0225, 72.5714],
     }
- 
+
     # Month filter
     month_order = [
         "Jan-2024", "Feb-2024", "Mar-2024",
@@ -220,26 +220,26 @@ elif page == "🗺️ AQI Map":
     selected_month = st.selectbox(
         "Select Month", month_order
     )
- 
+
     # Filter data
     df_month = df[df["month"] == selected_month]
- 
+
     # Create Folium map
     m = folium.Map(
         location=[20.5937, 78.9629],
         zoom_start=5,
         tiles="CartoDB dark_matter"
     )
- 
+
     for _, row in df_month.iterrows():
         city = row["city"]
         aqi  = row["AQI"]
- 
+
         if city not in city_coords:
             continue
- 
+
         lat, lon = city_coords[city]
- 
+
         # Color based on AQI
         if aqi > 200:
             color = "red"
@@ -249,7 +249,7 @@ elif page == "🗺️ AQI Map":
             color = "yellow"
         else:
             color = "green"
- 
+
         folium.CircleMarker(
             location=[lat, lon],
             radius=aqi / 15,
@@ -266,9 +266,9 @@ elif page == "🗺️ AQI Map":
             ),
             tooltip=f"{city}: AQI {aqi:.0f}"
         ).add_to(m)
- 
+
     st_folium(m, width=900, height=500)
- 
+
     # AQI table
     st.markdown("### 📊 AQI Values")
     st.dataframe(
@@ -278,7 +278,7 @@ elif page == "🗺️ AQI Map":
         .round(2),
         use_container_width=True
     )
- 
+
 # ════════════════════════════════
 # PAGE 3 — HCHO HOTSPOTS
 # ════════════════════════════════
@@ -289,7 +289,7 @@ elif page == "🔥 HCHO Hotspots":
         "biomass burning and industries"
     )
     st.markdown("---")
- 
+
     # HCHO ranking
     city_hcho = df.groupby("city")[
         "HCHO_sat"
@@ -297,9 +297,9 @@ elif page == "🔥 HCHO Hotspots":
         ascending=False
     ).reset_index()
     city_hcho.columns = ["city", "HCHO_mean"]
- 
+
     col1, col2 = st.columns(2)
- 
+
     with col1:
         # Horizontal bar chart
         colors = [
@@ -335,7 +335,7 @@ elif page == "🔥 HCHO Hotspots":
         )
         st.plotly_chart(fig,
                         use_container_width=True)
- 
+
     with col2:
         st.markdown("### 🚨 Hotspot Alerts")
         for _, row in city_hcho.iterrows():
@@ -356,18 +356,18 @@ elif page == "🔥 HCHO Hotspots":
                     f"🟢 **{city}** — "
                     f"SAFE: HCHO = {hcho:.1f}"
                 )
- 
+
     # Monthly trend
     st.markdown("---")
     st.markdown("### 📈 Monthly HCHO Trend")
- 
+
     month_order = [
         "Jan-2024", "Feb-2024", "Mar-2024",
         "Apr-2024", "May-2024", "Jun-2024"
     ]
     top3 = city_hcho.head(3)["city"].tolist()
     df_top3 = df[df["city"].isin(top3)]
- 
+
     fig2 = px.line(
         df_top3,
         x="month", y="HCHO_sat",
@@ -387,7 +387,7 @@ elif page == "🔥 HCHO Hotspots":
     )
     st.plotly_chart(fig2,
                     use_container_width=True)
- 
+
 # ════════════════════════════════
 # PAGE 4 — MODEL PERFORMANCE
 # ════════════════════════════════
@@ -397,9 +397,9 @@ elif page == "📊 Model Performance":
         "VayuDrishti ML model accuracy metrics"
     )
     st.markdown("---")
- 
+
     col1, col2 = st.columns(2)
- 
+
     with col1:
         st.markdown("### 🤖 XGBoost Results")
         st.metric("RMSE", "10.12",
@@ -410,7 +410,7 @@ elif page == "📊 Model Performance":
             "✅ XGBoost explains 98.3% "
             "of AQI variation!"
         )
- 
+
         # Gauge chart
         fig = go.Figure(go.Indicator(
             mode="gauge+number",
@@ -441,7 +441,7 @@ elif page == "📊 Model Performance":
         )
         st.plotly_chart(fig,
                         use_container_width=True)
- 
+
     with col2:
         st.markdown("### 🧠 CNN-LSTM Results")
         st.metric("RMSE", "19.92",
@@ -452,7 +452,7 @@ elif page == "📊 Model Performance":
             "ℹ️ CNN-LSTM will outperform "
             "XGBoost with larger datasets!"
         )
- 
+
         # Gauge chart
         fig2 = go.Figure(go.Indicator(
             mode="gauge+number",
@@ -483,7 +483,7 @@ elif page == "📊 Model Performance":
         )
         st.plotly_chart(fig2,
                         use_container_width=True)
- 
+
     # Comparison table
     st.markdown("---")
     st.markdown("### 📊 Model Comparison")
@@ -498,7 +498,7 @@ elif page == "📊 Model Performance":
     })
     st.dataframe(comparison,
                  use_container_width=True)
- 
+
 # ════════════════════════════════
 # PAGE 5 — CITY ANALYSIS
 # ════════════════════════════════
@@ -506,19 +506,19 @@ elif page == "🏙️ City Analysis":
     st.title("🏙️ City-wise Analysis")
     st.markdown("Deep dive into each city")
     st.markdown("---")
- 
+
     # City selector
     selected_city = st.selectbox(
         "Select City",
         sorted(df["city"].unique())
     )
- 
+
     city_data = df[
         df["city"] == selected_city
     ].sort_values("month")
- 
+
     col1, col2, col3, col4 = st.columns(4)
- 
+
     with col1:
         st.metric(
             "Avg AQI",
@@ -543,11 +543,11 @@ elif page == "🏙️ City Analysis":
         else:
             risk = "LOW 🟢"
         st.metric("Health Risk", risk)
- 
+
     st.markdown("---")
- 
+
     col1, col2 = st.columns(2)
- 
+
     with col1:
         # AQI trend
         fig = px.line(
@@ -563,7 +563,7 @@ elif page == "🏙️ City Analysis":
         )
         st.plotly_chart(fig,
                         use_container_width=True)
- 
+
     with col2:
         # HCHO trend
         fig2 = px.line(
@@ -580,13 +580,13 @@ elif page == "🏙️ City Analysis":
         )
         st.plotly_chart(fig2,
                         use_container_width=True)
- 
+
     # Pollutant breakdown
     st.markdown("### 🧪 Pollutant Breakdown")
     pollutants = ["PM2.5", "PM10",
                   "NO2", "SO2", "CO"]
     avg_vals = city_data[pollutants].mean()
- 
+
     fig3 = px.bar(
         x=pollutants,
         y=avg_vals.values,
@@ -604,7 +604,7 @@ elif page == "🏙️ City Analysis":
     )
     st.plotly_chart(fig3,
                     use_container_width=True)
- 
+
     # Raw data
     st.markdown("### 📋 Raw Data")
     st.dataframe(
@@ -615,19 +615,19 @@ elif page == "🏙️ City Analysis":
         ]].round(2),
         use_container_width=True
     )
- 
+
 # ════════════════════════════════
-# PAGE 6 — AQI FORECAST (NEW)
+# PAGE 6 — AQI FORECAST (NEW — 15-CITY MODEL)
 # ════════════════════════════════
 elif page == "🔮 AQI Forecast":
     st.title("🔮 Next-Day AQI Forecast")
     st.markdown(
         "Predicts **tomorrow's AQI** using real CPCB historical "
-        "data (Jan-Jun 2024), validated with a time-based train/test "
-        "split — no data leakage."
+        "data (Jan-Jun 2024) across **15 Indian cities**, validated "
+        "with a time-based train/test split — no data leakage."
     )
     st.markdown("---")
- 
+
     @st.cache_data
     def load_daily():
         df = pd.read_csv(
@@ -638,9 +638,9 @@ elif page == "🔮 AQI Forecast":
         df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
         df = df.dropna(subset=["Date", "AQI_avg"])
         return df
- 
+
     daily_df = load_daily()
- 
+
     class LSTMForecast(nn.Module):
         def __init__(self, hidden=32):
             super().__init__()
@@ -649,46 +649,46 @@ elif page == "🔮 AQI Forecast":
             self.fc1 = nn.Linear(hidden, 16)
             self.relu = nn.ReLU()
             self.fc2 = nn.Linear(16, 1)
- 
+
         def forward(self, x):
             out, _ = self.lstm(x)
             out = out[:, -1, :]
             out = self.relu(self.fc1(out))
             out = self.fc2(out)
             return out.squeeze(-1)
- 
+
     @st.cache_resource
     def load_lstm():
         model = LSTMForecast()
         import urllib.request, os
-        path = "lstm_model.pth"
+        path = "lstm_model_15city.pth"
         if not os.path.exists(path):
             urllib.request.urlretrieve(
                 "https://raw.githubusercontent.com/MANIMARAN-V18/"
-                "VayuDrishti-ISRO-BAH2026/main/models/lstm_model.pth",
+                "VayuDrishti-ISRO-BAH2026/main/models/lstm_model_15city.pth",
                 path
             )
         model.load_state_dict(torch.load(path, map_location="cpu"))
         model.eval()
         return model
- 
+
     lstm_model = load_lstm()
- 
+
     selected_city = st.selectbox(
         "Select City", sorted(daily_df["City"].unique()), key="forecast_city"
     )
- 
+
     city_series = (
         daily_df[daily_df["City"] == selected_city]
         .sort_values("Date")
         .tail(7)
     )
- 
+
     if len(city_series) < 7:
         st.warning("Not enough recent days of data for this city to forecast.")
     else:
         last7 = city_series["AQI_avg"].values
- 
+
         fig = px.line(
             city_series, x="Date", y="AQI_avg", markers=True,
             title=f"{selected_city} — Last 7 Days AQI",
@@ -696,14 +696,14 @@ elif page == "🔮 AQI Forecast":
         )
         fig.update_layout(template="plotly_dark", height=300)
         st.plotly_chart(fig, use_container_width=True)
- 
+
         scaler = StandardScaler()
         last7_scaled = scaler.fit_transform(last7.reshape(-1, 1)).flatten()
         x_tensor = torch.tensor(last7_scaled, dtype=torch.float32).view(1, 7, 1)
         with torch.no_grad():
             pred_scaled = lstm_model(x_tensor).item()
         predicted_aqi = scaler.inverse_transform([[pred_scaled]])[0][0]
- 
+
         st.markdown("---")
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -724,21 +724,23 @@ elif page == "🔮 AQI Forecast":
                 st.warning("🟡 Category: Moderate")
             else:
                 st.success("🟢 Category: Satisfactory")
- 
+
         st.markdown("---")
         st.markdown("### 📊 Model Validation (on held-out real data)")
         val_comparison = pd.DataFrame({
             "Model": ["XGBoost (tuned)", "LSTM (deep learning)"],
-            "R²": [0.7837, 0.8711],
-            "RMSE": [30.02, 22.83],
+            "R²": [0.7559, 0.8319],
+            "RMSE": [28.83, 23.51],
             "Notes": [
-                "Lag/rolling features + city + calendar",
-                "7-day sequence, 2-layer, 13,473 params"
+                "Lag/rolling features + city + calendar, 15 cities",
+                "7-day sequence, 2-layer, 13,473 params, 15 cities"
             ]
         })
         st.dataframe(val_comparison, use_container_width=True)
         st.caption(
             "Validated using a **time-based split** (train on earlier dates, "
             "test on later unseen dates) — a harder but honest benchmark "
-            "compared to random-split accuracy."
+            "compared to random-split accuracy. Scores reflect the larger, "
+            "more climatically diverse 15-city dataset, which is a harder "
+            "generalization task than the original 10-city version."
         )

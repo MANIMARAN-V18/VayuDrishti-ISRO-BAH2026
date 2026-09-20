@@ -12,6 +12,23 @@ from sklearn.preprocessing import StandardScaler
 import warnings
 warnings.filterwarnings("ignore")
 
+
+def health_risk_score(aqi):
+    """Converts AQI to a 1-10 Health Risk Score using CPCB's official AQI categories."""
+    if aqi <= 50:
+        return 1, "Good", "🟢"
+    elif aqi <= 100:
+        return 3, "Satisfactory", "🟢"
+    elif aqi <= 200:
+        return 5, "Moderate", "🟡"
+    elif aqi <= 300:
+        return 7, "Poor", "🟠"
+    elif aqi <= 400:
+        return 9, "Very Poor", "🔴"
+    else:
+        return 10, "Severe", "🔴"
+
+
 # ── Page Config ──
 st.set_page_config(
     page_title="VayuDrishti — Air Vision",
@@ -520,6 +537,23 @@ elif page == "🏙️ City Analysis":
             risk = "LOW 🟢"
         st.metric("Overall AQI Level", risk)
 
+    score, category, emoji = health_risk_score(city_data["AQI"].mean())
+    st.markdown("---")
+    st.markdown("### ⚕️ Health Risk Score")
+    hcol1, hcol2 = st.columns([1, 3])
+    with hcol1:
+        st.metric("Risk Score (1-10)", f"{score}/10")
+    with hcol2:
+        st.markdown(f"**Category: {emoji} {category}**")
+        if score <= 3:
+            st.success("Air quality is safe for most outdoor activities.")
+        elif score <= 5:
+            st.warning("Sensitive groups (children, elderly, asthma patients) should limit prolonged outdoor exertion.")
+        elif score <= 7:
+            st.warning("Everyone may experience mild effects; sensitive groups should reduce outdoor activity.")
+        else:
+            st.error("Health warning: avoid outdoor activity, especially for sensitive groups.")
+
     st.markdown("---")
 
     col1, col2 = st.columns(2)
@@ -770,6 +804,14 @@ elif page == "🧮 Live AQI Predictor":
                 st.success("🟢 Category: Satisfactory")
             else:
                 st.success("🟢 Category: Good")
+
+        score, hrs_category, emoji = health_risk_score(predicted_aqi)
+        st.markdown("### ⚕️ Health Risk Score")
+        hcol1, hcol2 = st.columns([1, 3])
+        with hcol1:
+            st.metric("Risk Score (1-10)", f"{score}/10")
+        with hcol2:
+            st.markdown(f"**{emoji} {hrs_category}**")
 
         st.caption(
             "Prediction from a real-data-trained XGBoost model (2,565 real "

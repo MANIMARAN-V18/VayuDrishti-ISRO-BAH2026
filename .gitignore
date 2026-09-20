@@ -68,5 +68,6 @@ tmp/
 
 /lstm_model.pth
 /lstm_model_15city.pth
+/xgb_pollutant_model_15city.pkl
 # Colab paths
 /content/drive/

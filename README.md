@@ -24,6 +24,7 @@ VayuDrishti is an AQI prediction and forecasting system that:
 - 📡 Uses **real, ground-truth CPCB station data** across **15 Indian cities**
 - 🧠 Applies **XGBoost** to predict same-day AQI from pollutant readings (PM2.5, PM10, NO2, SO2, CO)
 - 🔮 Applies an **LSTM** to forecast **next-day AQI** from the past 7 days' trend, per city
+- ⚕️ Provides a **Health Risk Score (1-10)**, based on CPCB's official 6-category AQI classification
 - 🛰️ Uses **ISRO INSAT-3D** + **Sentinel-5P TROPOMI** satellite data to detect **HCHO hotspots** from biomass burning (10-city scope)
 - 🗺️ Visualizes AQI and pollutant trends across all 15 cities on a live interactive dashboard
 
@@ -61,6 +62,21 @@ VayuDrishti is an AQI prediction and forecasting system that:
 | CNN-LSTM (original) | 19.92 | 0.935 |
 
 These were trained on a small simulated dataset (~60 rows) fused with satellite features, and are kept here for historical comparison. The 15-city models above are the current, real-data-validated versions used in the live dashboard.
+
+### Health Risk Score (1-10)
+
+Built on top of the AQI models — converts any AQI value into a 1-10 score using CPCB's official 6-category classification, with a plain-language health advisory:
+
+| AQI Range | CPCB Category | Health Risk Score |
+|-----------|---------------|-------------------|
+| 0-50 | Good | 1 |
+| 51-100 | Satisfactory | 3 |
+| 101-200 | Moderate | 5 |
+| 201-300 | Poor | 7 |
+| 301-400 | Very Poor | 9 |
+| 401-500 | Severe | 10 |
+
+Live in both the **City Analysis** page (per-city average) and the **Live AQI Predictor** page (per-prediction).
 
 ---
 
@@ -115,8 +131,9 @@ HCHO detection has not yet been extended to the 5 newly added cities — this de
 2. **AQI Map** — interactive map, all 15 cities, AQI + pollutant popup
 3. **HCHO Hotspots** — satellite-based danger-zone ranking (10-city scope, clearly labeled)
 4. **Model Performance** — honest comparison of the XGBoost and LSTM models
-5. **City Analysis** — per-city real AQI and pollutant trends, all 15 cities
+5. **City Analysis** — per-city real AQI and pollutant trends + Health Risk Score, all 15 cities
 6. **🔮 AQI Forecast** — pick a city, see the last 7 real days, get tomorrow's predicted AQI live from the LSTM model
+7. **🧮 Live AQI Predictor** — enter pollutant values, get a live XGBoost-predicted AQI + Health Risk Score
 
 ---
 
@@ -127,8 +144,6 @@ Listed transparently as future work, not shipped features:
 - **HCHO/satellite fusion for the 5 new cities** — extending hotspot detection beyond the original 10
 - **Coastal Meteorology Module** — sea-breeze correction for coastal cities (Puducherry, Chennai, Mumbai)
 - **30-Day HCHO Hotspot Forecast** — using multi-year MODIS fire history
-- **District-level Health Risk Score** (1-10 scale)
-- **Live pollutant-input prediction tool** — a page where users enter PM2.5/PM10/NO2/SO2/CO and get a live XGBoost AQI prediction (model already trained, not yet wired into the UI)
 - **Expansion to 30+ Indian cities** and 2+ years of historical data (final year project target)
 
 ---
@@ -155,7 +170,6 @@ streamlit run app.py
 - ✅ **ISRO Mission** — Satellite data for public benefit
 
 ---
-
 
 
 ## 📞 Contact

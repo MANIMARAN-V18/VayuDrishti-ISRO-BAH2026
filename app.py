@@ -86,7 +86,8 @@ page = st.sidebar.selectbox(
         "🔥 HCHO Hotspots",
         "📊 Model Performance",
         "🏙️ City Analysis",
-        "🔮 AQI Forecast"
+        "🔮 AQI Forecast",
+        "🧮 Live AQI Predictor"
     ]
 )
 
@@ -680,4 +681,97 @@ elif page == "🔮 AQI Forecast":
             "Validated using a **time-based split** (train on earlier dates, "
             "test on later unseen dates) — a harder but honest benchmark "
             "compared to random-split accuracy."
+        )
+
+# ════════════════════════════════
+# PAGE 7 — LIVE AQI PREDICTOR (NEW)
+# ════════════════════════════════
+elif page == "🧮 Live AQI Predictor":
+    st.title("🧮 Live AQI Predictor")
+    st.markdown(
+        "Enter pollutant levels and get a **live predicted AQI**, using the "
+        "XGBoost model trained on real CPCB data across 15 cities "
+        "(test R² = 0.9237)."
+    )
+    st.markdown("---")
+
+    import joblib
+
+    @st.cache_resource
+    def load_xgb_pollutant_model():
+        import urllib.request, os
+        path = "xgb_pollutant_model_15city.pkl"
+        if not os.path.exists(path):
+            urllib.request.urlretrieve(
+                "https://raw.githubusercontent.com/MANIMARAN-V18/"
+                "VayuDrishti-ISRO-BAH2026/main/models/xgb_pollutant_model_15city.pkl",
+                path
+            )
+        return joblib.load(path)
+
+    xgb_model = load_xgb_pollutant_model()
+
+    all_cities = [
+        "Ahmedabad", "Bengaluru", "Chennai", "Dehradun", "Delhi",
+        "Guwahati", "Hyderabad", "Jodhpur", "Kolkata", "Lucknow",
+        "Mumbai", "Patna", "Puducherry", "Raipur", "Thiruvananthapuram"
+    ]
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        selected_city = st.selectbox("City", sorted(all_cities))
+        selected_month = st.slider("Month", 1, 12, 6)
+        pm25 = st.number_input("PM2.5 (µg/m³)", min_value=0.0, max_value=500.0, value=80.0, step=1.0)
+        pm10 = st.number_input("PM10 (µg/m³)", min_value=0.0, max_value=600.0, value=120.0, step=1.0)
+
+    with col2:
+        no2 = st.number_input("NO2 (µg/m³)", min_value=0.0, max_value=300.0, value=25.0, step=1.0)
+        so2 = st.number_input("SO2 (µg/m³)", min_value=0.0, max_value=300.0, value=10.0, step=1.0)
+        co = st.number_input("CO (mg/m³)", min_value=0.0, max_value=50.0, value=1.0, step=0.1)
+
+    if st.button("Predict AQI", type="primary"):
+        feature_cols = [
+            'PM2.5', 'PM10', 'NO2', 'SO2', 'CO', 'month',
+            'city_Ahmedabad', 'city_Bengaluru', 'city_Chennai', 'city_Dehradun',
+            'city_Delhi', 'city_Guwahati', 'city_Hyderabad', 'city_Jodhpur',
+            'city_Kolkata', 'city_Lucknow', 'city_Mumbai', 'city_Patna',
+            'city_Puducherry', 'city_Raipur', 'city_Thiruvananthapuram'
+        ]
+
+        row = {col: 0 for col in feature_cols}
+        row["PM2.5"] = pm25
+        row["PM10"] = pm10
+        row["NO2"] = no2
+        row["SO2"] = so2
+        row["CO"] = co
+        row["month"] = selected_month
+        city_col = f"city_{selected_city}"
+        if city_col in row:
+            row[city_col] = 1
+
+        X_input = pd.DataFrame([row])[feature_cols]
+        predicted_aqi = xgb_model.predict(X_input)[0]
+
+        st.markdown("---")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Predicted AQI", f"{predicted_aqi:.0f}")
+        with col2:
+            if predicted_aqi > 300:
+                st.error("🔴 Category: Severe")
+            elif predicted_aqi > 200:
+                st.error("🔴 Category: Very Poor")
+            elif predicted_aqi > 150:
+                st.warning("🟡 Category: Poor")
+            elif predicted_aqi > 100:
+                st.warning("🟡 Category: Moderate")
+            elif predicted_aqi > 50:
+                st.success("🟢 Category: Satisfactory")
+            else:
+                st.success("🟢 Category: Good")
+
+        st.caption(
+            "Prediction from a real-data-trained XGBoost model (2,565 real "
+            "daily records, 15 cities). Not a substitute for official CPCB readings."
         )
